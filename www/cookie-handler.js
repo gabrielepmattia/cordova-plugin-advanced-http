@@ -70,6 +70,6 @@ module.exports = function init(storage, ToughCookie, WebStorageCookieStore) {
   }
 
   function getAllCookies() {
-    return store.toJSON();
+    return cookieJar.toJSON();
   }
 };
