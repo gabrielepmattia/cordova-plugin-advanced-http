@@ -28,7 +28,8 @@ module.exports = function init(exec, cookieHandler, urlUtil, helpers, globalConf
     delete: del,
     head: head,
     uploadFile: uploadFile,
-    downloadFile: downloadFile
+    downloadFile: downloadFile,
+    getAllCookies: getAllCookies
   };
 
   function getBasicAuthHeader(username, password) {
@@ -143,23 +144,22 @@ module.exports = function init(exec, cookieHandler, urlUtil, helpers, globalConf
     url = urlUtil.appendQueryParamsString(url, urlUtil.serializeQueryParams(options.params, true));
 
     var headers = helpers.getMergedHeaders(url, options.headers, globalConfigs.headers);
-
+    var onSuccess = helpers.injectCookieHandler(url, success);
     var onFail = helpers.injectCookieHandler(url, failure);
-    var onSuccess = helpers.injectCookieHandler(url, helpers.injectRawResponseHandler(options.responseType, success));
 
     switch (options.method) {
       case 'post':
       case 'put':
       case 'patch':
         var data = helpers.getProcessedData(options.data, options.serializer);
-        return exec(onSuccess, onFail, 'CordovaHttpPlugin', options.method, [url, data, options.serializer, headers, options.timeout, options.followRedirect, options.responseType]);
+        return exec(onSuccess, onFail, 'CordovaHttpPlugin', options.method, [url, data, options.serializer, headers, options.timeout, options.followRedirect]);
       case 'upload':
-        return exec(onSuccess, onFail, 'CordovaHttpPlugin', 'uploadFile', [url, headers, options.filePath, options.name, options.timeout, options.followRedirect, options.responseType]);
+        return exec(onSuccess, onFail, 'CordovaHttpPlugin', 'uploadFile', [url, headers, options.filePath, options.name, options.timeout, options.followRedirect]);
       case 'download':
         var onDownloadSuccess = helpers.injectCookieHandler(url, helpers.injectFileEntryHandler(success));
         return exec(onDownloadSuccess, onFail, 'CordovaHttpPlugin', 'downloadFile', [url, headers, options.filePath, options.timeout, options.followRedirect]);
       default:
-        return exec(onSuccess, onFail, 'CordovaHttpPlugin', options.method, [url, headers, options.timeout, options.followRedirect, options.responseType]);
+        return exec(onSuccess, onFail, 'CordovaHttpPlugin', options.method, [url, headers, options.timeout, options.followRedirect]);
     }
   }
 
@@ -193,6 +193,10 @@ module.exports = function init(exec, cookieHandler, urlUtil, helpers, globalConf
 
   function downloadFile(url, params, headers, filePath, success, failure) {
     return publicInterface.sendRequest(url, { method: 'download', params: params, headers: headers, filePath: filePath }, success, failure);
+  }
+
+  function getAllCookies() {
+    return cookieHandler.getAllCookies();
   }
 
   return publicInterface;
