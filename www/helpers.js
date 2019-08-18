@@ -3,7 +3,7 @@ module.exports = function init(jsUtil, cookieHandler, messages, base64) {
   var validCertModes = ['default', 'nocheck', 'pinned', 'legacy'];
   var validClientAuthModes = ['none', 'systemstore', 'buffer'];
   var validHttpMethods = ['get', 'put', 'post', 'patch', 'head', 'delete', 'upload', 'download'];
-  var validResponseTypes = ['text','arraybuffer', 'blob'];
+  var validResponseTypes = ['text', 'arraybuffer', 'blob'];
 
   var interface = {
     b64EncodeUnicode: b64EncodeUnicode,
@@ -229,6 +229,7 @@ module.exports = function init(jsUtil, cookieHandler, messages, base64) {
 
   function injectCookieHandler(url, cb) {
     return function (response) {
+      console.log(`injectCookieHandler(): headers=${response.headers}`)
       cookieHandler.setCookieFromString(url, resolveCookieString(response.headers));
       cb(response);
     }
@@ -253,7 +254,7 @@ module.exports = function init(jsUtil, cookieHandler, messages, base64) {
       if (responseType === validResponseTypes[2]) {
         var buffer = base64.toArrayBuffer(response.data);
         var type = response.headers['content-type'] || '';
-        var blob = new Blob([ buffer ], { type: type });
+        var blob = new Blob([buffer], { type: type });
         response.data = blob;
       }
 
