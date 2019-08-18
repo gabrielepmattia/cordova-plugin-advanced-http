@@ -229,7 +229,8 @@ module.exports = function init(jsUtil, cookieHandler, messages, base64) {
 
   function injectCookieHandler(url, cb) {
     return function (response) {
-      console.log(`injectCookieHandler(): headers=${JSON.stringify(response.headers)}`)
+      console.log(`injectCookieHandler(): url=${url}`)
+      console.log(`injectCookieHandler(): headers=${JSON.stringify(response)}`)
       cookieHandler.setCookieFromString(url, resolveCookieString(response.headers));
       cb(response);
     }
